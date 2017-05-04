@@ -118,9 +118,11 @@ int* proxy(int fd){
                 //                printf("%s\n",maps[j].content[k]);
                 send(fd,maps[j].content[k],csize,0);
             }
+
             return ret;
         }
     }
+
     char* sn = malloc(hostStrLen+1);
     for(j=0;j<hostStrLen;j++) sn[j] = hostStr[j];
     sn[j] = 0;
@@ -151,19 +153,24 @@ int* proxy(int fd){
     //    printf("recv()'d %d bytes of data in buf\n",bc);
     //	printf("%s\n",outBuffer);
     int len = getContentLength(outBuffer);
-    //
+
     int reclen = bc-getHeaderLength(outBuffer);
+
     char** entireInput = malloc(sizeof(char*)*len);	//malloc
     ret[1] = mapInd;
     maps[mapInd].key = key;
+
     maps[mapInd].content = entireInput;
     maps[mapInd].chunkNum = 1;
     maps[mapInd].chunkSize = malloc(sizeof(int)*len);
+
     maps[mapInd].chunkSize[0] = bc;
+
     maps[mapInd].total = len;
     entireInput[0] = outBuffer;
+
     send(fd,outBuffer,bc,0);
-    //
+
     while(reclen!=len){
         char* tmpBuffer = malloc(MAX_SIZE);
         bc = (int)recv(sockfd,tmpBuffer,MAX_SIZE-1,0);
@@ -176,6 +183,7 @@ int* proxy(int fd){
         maps[mapInd].chunkNum++;
         send(fd,tmpBuffer,bc,0);
     }
+
 //    printf("%d\n",maps[mapInd].chunkNum);
     mapInd++;
 //    printf("%d\n",mapInd);
@@ -241,7 +249,7 @@ void handle_thread(void* argument){
 
     /* read the message */
     int* r = proxy(fd);
-    
+
     c_end = clock();
     
     printf("%s|%s|",addr_p,maps[r[1]].key);
@@ -250,7 +258,7 @@ void handle_thread(void* argument){
     printf("%d|%d\n",maps[r[1]].total,(int)difftime(c_end,c_start));
     free(r);
     
-    printf("End of thread\n");
+//    printf("End of thread\n");
     pthread_exit(NULL);
 }
 
@@ -317,8 +325,7 @@ int main(int argc, char *argv[]) {
             }
             clienthost = ret->h_name;
             clientport = ntohs(sa.sin_port);
-            printf("admin: connect from '%s' at '%hu'\n", clienthost,
-                   clientport);
+//            printf("admin: connect from '%s' at '%hu'\n", clienthost, clientport);
             
             
             
